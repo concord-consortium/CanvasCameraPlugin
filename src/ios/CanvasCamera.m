@@ -412,7 +412,12 @@ static BOOL const LOGGING                    = NO;
 }
 
 - (AVCaptureDevice *)getDeviceWithPosition:(AVCaptureDevicePosition) position {
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    // DM: updated to use AVCaptureDeviceDiscoverySession
+    // NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    AVCaptureDeviceDiscoverySession *captureDeviceDiscoverySession = [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera]
+                                          mediaType:AVMediaTypeVideo
+                                           position:AVCaptureDevicePositionUnspecified];
+    NSArray *devices = [captureDeviceDiscoverySession devices];
     for (AVCaptureDevice *device in devices) {
         if (device.position == position) {
             if (LOGGING) NSLog(@"[DEBUG][CanvasCamera][getDeviceWithPosition] Capture device found for position : %@", [self devicePositionToString:position]);
@@ -431,16 +436,22 @@ static BOOL const LOGGING                    = NO;
                 if ([captureDevice isTorchModeSupported:AVCaptureTorchModeOn]) {
                     captureDevice.torchMode = AVCaptureTorchModeOn;
                 }
+                /*
+                DM: removed isFlashModeSupported check as it is no longer supported
                 if ([captureDevice isFlashModeSupported:AVCaptureFlashModeOn]) {
                     captureDevice.flashMode = AVCaptureFlashModeOn;
                 }
+                 */
             } else {
                 if ([captureDevice isTorchModeSupported:AVCaptureTorchModeOff]) {
                     captureDevice.torchMode = AVCaptureTorchModeOff;
                 }
+                /*
+                DM: removed isFlashModeSupported check as it is no longer supported
                 if ([captureDevice isFlashModeSupported:AVCaptureFlashModeOff]) {
                     captureDevice.flashMode = AVCaptureFlashModeOff;
                 }
+                */
             }
             [self.captureDevice unlockForConfiguration];
             return YES;
